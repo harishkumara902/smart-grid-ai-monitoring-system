@@ -1,46 +1,232 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
     <title>Smart Grid AI Dashboard</title>
-
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- PWA -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#00FFB2">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SmartGrid AI">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-
         :root {
-            --cream:   #FFFAF0;
-            --red:     #E03F4F;
-            --olive:   #81912F;
-            --yellow:  #F8C463;
-            --dark:    #111208;
-            --card-bg: #1a1c0f;
-            --border:  rgba(248,196,99,0.15);
+            --bg:       #040d12;
+            --bg2:      #071820;
+            --card:     #071820;
+            --neon:     #00FFB2;
+            --neon2:    #00B4FF;
+            --red:      #FF4060;
+            --yellow:   #FFD000;
+            --text:     #C8F0E8;
+            --muted:    rgba(200,240,232,0.35);
+            --border:   rgba(0,255,178,0.15);
+            --glow:     0 0 20px rgba(0,255,178,0.3);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            background-color: var(--dark);
-            color: var(--cream);
-            font-family: 'Syne', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
+        /* ── GRID BACKGROUND ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,255,178,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,178,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ══════════════════════════════
+           LOGIN PAGE
+        ══════════════════════════════ */
+        #loginPage {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+        }
+
+        #loginPage::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0,255,178,0.07) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 60% at 80% 50%, rgba(0,180,255,0.07) 0%, transparent 70%);
+        }
+
+        .login-box {
+            position: relative;
+            width: 420px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px 40px;
+            box-shadow: 0 0 60px rgba(0,255,178,0.1), inset 0 1px 0 rgba(0,255,178,0.1);
+            animation: loginFadeIn 0.8s ease forwards;
+        }
+
+        @keyframes loginFadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--neon), var(--neon2));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 24px;
+            box-shadow: var(--glow);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,255,178,0.3); }
+            50%       { box-shadow: 0 0 40px rgba(0,255,178,0.6); }
+        }
+
+        .login-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            color: var(--neon);
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .login-sub {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 36px;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: rgba(0,255,178,0.04);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--neon);
+            box-shadow: 0 0 15px rgba(0,255,178,0.15);
+            background: rgba(0,255,178,0.06);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--neon), var(--neon2));
+            border: none;
+            border-radius: 10px;
+            color: #040d12;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,255,178,0.4);
+        }
+
+        .login-btn:active { transform: translateY(0); }
+
+        .login-error {
+            color: var(--red);
+            font-size: 13px;
+            text-align: center;
+            margin-top: 14px;
+            display: none;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25%       { transform: translateX(-8px); }
+            75%       { transform: translateX(8px); }
+        }
+
+        /* ══════════════════════════════
+           DASHBOARD
+        ══════════════════════════════ */
+        #dashboard {
+            display: none;
+            position: relative;
+            z-index: 1;
+            animation: dashIn 0.6s ease forwards;
+        }
+
+        @keyframes dashIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* HEADER */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 28px 40px;
+            padding: 20px 40px;
             border-bottom: 1px solid var(--border);
+            background: rgba(4,13,18,0.8);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .logo-group {
@@ -50,89 +236,203 @@
         }
 
         .logo-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            background: var(--yellow);
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--neon), var(--neon2));
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 22px;
+            box-shadow: var(--glow);
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
             font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
-        header h1 {
-            font-size: 24px;
-            font-weight: 800;
+        .logo-text span { color: var(--neon); }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
         }
 
-        header h1 span {
-            color: var(--yellow);
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,255,178,0.08);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--neon);
         }
 
         .live-dot {
             width: 8px;
             height: 8px;
-            background: var(--olive);
+            background: var(--neon);
             border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
             animation: blink 1s infinite;
+            box-shadow: 0 0 8px var(--neon);
         }
 
         @keyframes blink {
-            50% { opacity: 0.2; }
+            50% { opacity: 0.2; box-shadow: none; }
         }
 
-        main {
-            padding: 28px 40px;
+        .logout-btn {
+            background: rgba(255,64,96,0.1);
+            border: 1px solid rgba(255,64,96,0.3);
+            color: var(--red);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
+        .logout-btn:hover {
+            background: rgba(255,64,96,0.2);
+            box-shadow: 0 0 15px rgba(255,64,96,0.2);
+        }
+
+        /* MAIN */
+        main { padding: 28px 40px; }
+
+        /* STATUS BAR */
+        #statusBox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--neon);
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            background: rgba(0,255,178,0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        /* ALERT */
         #alertBox {
             display: none;
-            background: rgba(224,63,79,0.12);
-            border: 1px solid var(--red);
+            background: rgba(255,64,96,0.08);
+            border: 1px solid rgba(255,64,96,0.4);
             color: var(--red);
-            padding: 16px;
-            border-radius: 12px;
+            padding: 14px 20px;
+            border-radius: 10px;
             margin-bottom: 20px;
             font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 2px;
+            animation: alertPulse 1s infinite;
         }
 
+        @keyframes alertPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255,64,96,0.2); }
+            50%       { box-shadow: 0 0 25px rgba(255,64,96,0.4); }
+        }
+
+        /* CARDS */
         .cards {
             display: grid;
-            grid-template-columns: repeat(4,1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             margin-bottom: 24px;
         }
 
         .card {
-            background: var(--card-bg);
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 22px;
             position: relative;
             overflow: hidden;
+            transition: all 0.3s;
+            animation: cardIn 0.6s ease forwards;
+            opacity: 0;
         }
 
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.15s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+        .card:nth-child(4) { animation-delay: 0.25s; }
+        .card:nth-child(5) { animation-delay: 0.3s; }
+        .card:nth-child(6) { animation-delay: 0.35s; }
+        .card:nth-child(7) { animation-delay: 0.4s; }
+        .card:nth-child(8) { animation-delay: 0.45s; }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon), var(--neon2));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover { 
+            border-color: rgba(0,255,178,0.35);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,255,178,0.1);
+        }
+
+        .card:hover::before { opacity: 1; }
+
         .card-label {
-            font-size: 11px;
-            color: rgba(255,250,240,0.4);
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 2px;
             text-transform: uppercase;
+            margin-bottom: 12px;
+            font-weight: 600;
         }
 
         .card-value {
-            font-size: 34px;
-            font-weight: 800;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--neon);
+            line-height: 1;
+            transition: all 0.3s;
         }
 
         .card-unit {
             font-size: 11px;
-            color: rgba(255,250,240,0.3);
-            margin-top: 5px;
+            color: var(--muted);
+            margin-top: 6px;
+            letter-spacing: 1px;
         }
 
+        .card-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 22px;
+            opacity: 0.2;
+        }
+
+        /* CHARTS */
         .charts {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -140,157 +440,283 @@
         }
 
         .chart-box {
-            background: var(--card-bg);
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 20px;
-            height: 360px;
+            border-radius: 16px;
+            padding: 24px;
+            height: 320px;
+            transition: all 0.3s;
+            animation: cardIn 0.6s ease forwards;
+            opacity: 0;
+            animation-delay: 0.5s;
+        }
+
+        .chart-box:hover {
+            border-color: rgba(0,255,178,0.25);
+            box-shadow: 0 4px 20px rgba(0,255,178,0.08);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
         }
 
         .chart-title {
-            font-size: 11px;
-            margin-bottom: 12px;
-            letter-spacing: 1px;
-            color: rgba(255,250,240,0.45);
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--muted);
             text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .chart-badge {
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(0,255,178,0.08);
+            color: var(--neon);
+            letter-spacing: 1px;
+            border: 1px solid var(--border);
         }
 
         canvas {
             width: 100% !important;
-            height: 280px !important;
+            height: 230px !important;
         }
 
+        /* FOOTER */
         footer {
             padding: 20px 40px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 11px;
-            color: rgba(255,250,240,0.25);
+            color: var(--muted);
+            letter-spacing: 2px;
+            margin-top: 24px;
         }
 
-        #statusBox {
-            font-size: 12px;
-            color: var(--olive);
-            margin-bottom: 16px;
-            font-weight: 700;
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            header { padding: 16px 20px; }
+            main { padding: 16px 20px; }
+            .cards { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .charts { grid-template-columns: 1fr; }
+            .logo-text { font-size: 16px; }
+            .card-value { font-size: 22px; }
         }
 
+        /* NUMBER FLIP ANIMATION */
+        .flip {
+            animation: flip 0.3s ease;
+        }
+
+        @keyframes flip {
+            0%   { transform: translateY(-10px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
     </style>
-
 </head>
 
 <body>
 
-<header>
-    <div class="logo-group">
-        <div class="logo-icon">⚡</div>
-        <div>
-            <h1>Smart<span>Grid</span> AI</h1>
+<!-- ══ LOGIN PAGE ══ -->
+<div id="loginPage">
+    <div class="login-box">
+        <div class="login-icon">⚡</div>
+        <div class="login-title">SMARTGRID AI</div>
+        <div class="login-sub">MONITORING SYSTEM ACCESS</div>
+
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" id="usernameInput" placeholder="Enter username" autocomplete="off">
         </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="passwordInput" placeholder="Enter password">
+        </div>
+
+        <button class="login-btn" onclick="doLogin()">ACCESS SYSTEM</button>
+        <div class="login-error" id="loginError">⚠ Invalid credentials. Access denied.</div>
     </div>
-    <div>
-        <span class="live-dot"></span>
-        LIVE SYSTEM
-    </div>
-</header>
+</div>
 
-<main>
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard">
 
-    <div id="statusBox">🔄 Connecting to live data...</div>
+    <header>
+        <div class="logo-group">
+            <div class="logo-icon">⚡</div>
+            <div class="logo-text">Smart<span>Grid</span> AI</div>
+        </div>
+        <div class="header-right">
+            <div class="live-badge">
+                <div class="live-dot"></div>
+                LIVE
+            </div>
+            <button class="logout-btn" onclick="doLogout()">LOGOUT</button>
+        </div>
+    </header>
 
-    <div id="alertBox">⚠ ANOMALY DETECTED</div>
+    <main>
 
-    <div class="cards">
-        <div class="card">
-            <div class="card-label">Actual Load</div>
-            <div class="card-value" id="actualValue">--</div>
-            <div class="card-unit">MW</div>
-        </div>
-        <div class="card">
-            <div class="card-label">Predicted Load</div>
-            <div class="card-value" id="predictedValue">--</div>
-            <div class="card-unit">MW</div>
-        </div>
-        <div class="card">
-            <div class="card-label">Voltage</div>
-            <div class="card-value" id="voltageValue">--</div>
-            <div class="card-unit">V</div>
-        </div>
-        <div class="card">
-            <div class="card-label">Frequency</div>
-            <div class="card-value" id="frequencyValue">--</div>
-            <div class="card-unit">Hz</div>
-        </div>
-        <div class="card">
-            <div class="card-label">Average Load</div>
-            <div class="card-value" id="averageLoad">--</div>
-            <div class="card-unit">MW</div>
-        </div>
-        <div class="card">
-            <div class="card-label">Peak Load</div>
-            <div class="card-value" id="peakLoad">--</div>
-            <div class="card-unit">MW</div>
-        </div>
-        <div class="card">
-            <div class="card-label">Min Load</div>
-            <div class="card-value" id="minLoad">--</div>
-            <div class="card-unit">MW</div>
-        </div>
-        <div class="card">
-            <div class="card-label">Accuracy</div>
-            <div class="card-value" id="accuracyValue">--</div>
-            <div class="card-unit">%</div>
-        </div>
-    </div>
+        <div id="statusBox">🔄 Connecting to live data...</div>
 
-    <div class="charts">
-        <div class="chart-box">
-            <div class="chart-title">Actual vs Predicted Load</div>
-            <canvas id="loadChart"></canvas>
-        </div>
-        <div class="chart-box">
-            <div class="chart-title">Voltage Monitor</div>
-            <canvas id="voltageChart"></canvas>
-        </div>
-        <div class="chart-box">
-            <div class="chart-title">Frequency Monitor</div>
-            <canvas id="frequencyChart"></canvas>
-        </div>
-        <div class="chart-box">
-            <div class="chart-title">Anomaly Score</div>
-            <canvas id="anomalyChart"></canvas>
-        </div>
-        <div class="chart-box">
-            <div class="chart-title">Future Forecast</div>
-            <canvas id="forecastChart"></canvas>
-        </div>
-    </div>
+        <div id="alertBox">⚡ ANOMALY DETECTED — GRID INSTABILITY WARNING</div>
 
-</main>
+        <div class="cards">
+            <div class="card">
+                <div class="card-icon">⚡</div>
+                <div class="card-label">Actual Load</div>
+                <div class="card-value" id="actualValue">--</div>
+                <div class="card-unit">MEGAWATT</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🤖</div>
+                <div class="card-label">Predicted Load</div>
+                <div class="card-value" id="predictedValue">--</div>
+                <div class="card-unit">MEGAWATT</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔋</div>
+                <div class="card-label">Voltage</div>
+                <div class="card-value" id="voltageValue">--</div>
+                <div class="card-unit">VOLTS</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">📡</div>
+                <div class="card-label">Frequency</div>
+                <div class="card-value" id="frequencyValue">--</div>
+                <div class="card-unit">HERTZ</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <div class="card-label">Average Load</div>
+                <div class="card-value" id="averageLoad">--</div>
+                <div class="card-unit">MEGAWATT</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔺</div>
+                <div class="card-label">Peak Load</div>
+                <div class="card-value" id="peakLoad">--</div>
+                <div class="card-unit">MEGAWATT</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔻</div>
+                <div class="card-label">Min Load</div>
+                <div class="card-value" id="minLoad">--</div>
+                <div class="card-unit">MEGAWATT</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎯</div>
+                <div class="card-label">Accuracy</div>
+                <div class="card-value" id="accuracyValue">--</div>
+                <div class="card-unit">PERCENT</div>
+            </div>
+        </div>
 
-<footer>
-    SMARTGRID AI MONITORING PLATFORM
-</footer>
+        <div class="charts">
+            <div class="chart-box">
+                <div class="chart-header">
+                    <div class="chart-title">Actual vs Predicted Load</div>
+                    <div class="chart-badge">LIVE</div>
+                </div>
+                <canvas id="loadChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="chart-header">
+                    <div class="chart-title">Voltage Monitor</div>
+                    <div class="chart-badge">LIVE</div>
+                </div>
+                <canvas id="voltageChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="chart-header">
+                    <div class="chart-title">Frequency Monitor</div>
+                    <div class="chart-badge">LIVE</div>
+                </div>
+                <canvas id="frequencyChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="chart-header">
+                    <div class="chart-title">Anomaly Score</div>
+                    <div class="chart-badge">AI</div>
+                </div>
+                <canvas id="anomalyChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="chart-header">
+                    <div class="chart-title">Future Forecast</div>
+                    <div class="chart-badge">LSTM</div>
+                </div>
+                <canvas id="forecastChart"></canvas>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <span>SMARTGRID AI MONITORING PLATFORM v2.0</span>
+        <span id="clockDisplay"></span>
+    </footer>
+
+</div>
 
 <script>
 
-Chart.defaults.color = 'rgba(255,250,240,0.4)';
-Chart.defaults.borderColor = 'rgba(255,250,240,0.08)';
+/* ══ LOGIN ══ */
+function doLogin() {
+    const u = document.getElementById('usernameInput').value.trim();
+    const p = document.getElementById('passwordInput').value.trim();
+    const err = document.getElementById('loginError');
 
-// Socket connection with fallback
-const socket = io({
-    transports: ['websocket', 'polling'],
-    reconnectionAttempts: 10,
-    reconnectionDelay: 1000
+    if (u === 'worker1' && p === 'worker@123') {
+        document.getElementById('loginPage').style.opacity = '0';
+        document.getElementById('loginPage').style.transition = 'opacity 0.5s';
+        setTimeout(() => {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            initSocket();
+        }, 500);
+    } else {
+        err.style.display = 'block';
+        err.style.animation = 'none';
+        setTimeout(() => err.style.animation = 'shake 0.4s ease', 10);
+    }
+}
+
+// Enter key login
+document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doLogin();
+});
+document.getElementById('usernameInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doLogin();
 });
 
-socket.on('connect', function() {
-    document.getElementById('statusBox').innerText = '✅ Connected to Live Data';
-    document.getElementById('statusBox').style.color = '#81912F';
-});
+function doLogout() {
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('loginPage').style.opacity = '1';
+    document.getElementById('usernameInput').value = '';
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('loginError').style.display = 'none';
+}
 
-socket.on('disconnect', function() {
-    document.getElementById('statusBox').innerText = '❌ Disconnected — Reconnecting...';
-    document.getElementById('statusBox').style.color = '#E03F4F';
-});
+/* ══ CLOCK ══ */
+function updateClock() {
+    const now = new Date();
+    document.getElementById('clockDisplay').innerText = now.toLocaleTimeString('en-IN', { hour12: false });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ══ CHARTS ══ */
+Chart.defaults.color = 'rgba(200,240,232,0.4)';
+Chart.defaults.borderColor = 'rgba(0,255,178,0.06)';
 
 const labels = [];
 const actualData = [];
@@ -299,133 +725,188 @@ const voltageData = [];
 const frequencyData = [];
 const anomalyData = [];
 
-function makeChart(id, datasets, extraOptions = {}) {
+function makeChart(id, datasets) {
     return new Chart(document.getElementById(id), {
         type: 'line',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+                legend: { display: datasets.length > 1 }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(0,255,178,0.04)' } },
+                y: { grid: { color: 'rgba(0,255,178,0.04)' } }
+            }
+        }
+    });
+}
+
+let loadChart, voltageChart, frequencyChart, anomalyChart, forecastChart;
+
+function initCharts() {
+    loadChart = makeChart('loadChart', [
+        {
+            label: 'Actual',
+            data: actualData,
+            borderColor: '#00FFB2',
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: 'rgba(0,255,178,0.05)'
+        },
+        {
+            label: 'Predicted',
+            data: predictedData,
+            borderColor: '#00B4FF',
+            borderWidth: 2,
+            pointRadius: 0,
+            borderDash: [5, 5],
+            tension: 0.4,
+            fill: false
+        }
+    ]);
+
+    voltageChart = makeChart('voltageChart', [{
+        data: voltageData,
+        borderColor: '#FFD000',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.4,
+        fill: true,
+        backgroundColor: 'rgba(255,208,0,0.05)'
+    }]);
+
+    frequencyChart = makeChart('frequencyChart', [{
+        data: frequencyData,
+        borderColor: '#00B4FF',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.4,
+        fill: true,
+        backgroundColor: 'rgba(0,180,255,0.05)'
+    }]);
+
+    anomalyChart = makeChart('anomalyChart', [{
+        data: anomalyData,
+        borderColor: '#FF4060',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.4,
+        fill: true,
+        backgroundColor: 'rgba(255,64,96,0.05)'
+    }]);
+
+    forecastChart = new Chart(document.getElementById('forecastChart'), {
+        type: 'line',
         data: {
-            labels: labels,
-            datasets: datasets
+            labels: [],
+            datasets: [{
+                data: [],
+                borderColor: '#bf00ff',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointBackgroundColor: '#bf00ff',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(191,0,255,0.05)'
+            }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             animation: false,
-            plugins: { legend: { display: datasets.length > 1 } },
-            ...extraOptions
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(0,255,178,0.04)' } },
+                y: { grid: { color: 'rgba(0,255,178,0.04)' } }
+            }
         }
     });
 }
 
-const loadChart = makeChart('loadChart', [
-    {
-        label: 'Actual',
-        data: actualData,
-        borderColor: '#22d3ee',
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.4
-    },
-    {
-        label: 'Predicted',
-        data: predictedData,
-        borderColor: '#F8C463',
-        borderWidth: 2,
-        pointRadius: 0,
-        borderDash: [5, 5],
-        tension: 0.4
-    }
-]);
+/* ══ SOCKET ══ */
+function initSocket() {
+    initCharts();
 
-const voltageChart = makeChart('voltageChart', [{
-    data: voltageData,
-    borderColor: '#81912F',
-    borderWidth: 2,
-    pointRadius: 0,
-    tension: 0.4,
-    fill: false
-}]);
+    const socket = io({
+        transports: ['websocket', 'polling'],
+        reconnectionAttempts: 10,
+        reconnectionDelay: 1000
+    });
 
-const frequencyChart = makeChart('frequencyChart', [{
-    data: frequencyData,
-    borderColor: '#E03F4F',
-    borderWidth: 2,
-    pointRadius: 0,
-    tension: 0.4,
-    fill: false
-}]);
+    socket.on('connect', function() {
+        document.getElementById('statusBox').innerHTML = '✅ &nbsp;Connected to Live Data — Receiving...';
+        document.getElementById('statusBox').style.color = '#00FFB2';
+    });
 
-const anomalyChart = makeChart('anomalyChart', [{
-    data: anomalyData,
-    borderColor: '#ff4d4d',
-    borderWidth: 2,
-    pointRadius: 0,
-    tension: 0.4,
-    fill: false
-}]);
+    socket.on('disconnect', function() {
+        document.getElementById('statusBox').innerHTML = '❌ &nbsp;Disconnected — Reconnecting...';
+        document.getElementById('statusBox').style.color = '#FF4060';
+    });
 
-const forecastChart = makeChart('forecastChart', [{
-    data: [],
-    borderColor: '#ff00ff',
-    borderWidth: 2,
-    pointRadius: 3,
-    tension: 0.4,
-    fill: false
-}]);
+    socket.on('new_data', function(data) {
+        document.getElementById('statusBox').innerHTML = '✅ &nbsp;Live Data Streaming...';
 
-socket.on('new_data', function(data) {
+        labels.push('');
+        actualData.push(data.actual);
+        predictedData.push(data.predicted);
+        voltageData.push(data.voltage);
+        frequencyData.push(data.frequency);
+        anomalyData.push(data.anomaly);
 
-    // Update status
-    document.getElementById('statusBox').innerText = '✅ Live Data Receiving...';
+        if (labels.length > 50) {
+            labels.shift();
+            actualData.shift();
+            predictedData.shift();
+            voltageData.shift();
+            frequencyData.shift();
+            anomalyData.shift();
+        }
 
-    // Push labels and data
-    labels.push('');
-    actualData.push(data.actual);
-    predictedData.push(data.predicted);
-    voltageData.push(data.voltage);
-    frequencyData.push(data.frequency);
-    anomalyData.push(data.anomaly);
+        forecastChart.data.labels = data.future_predictions.map((_, i) => 'T+' + (i + 1));
+        forecastChart.data.datasets[0].data = data.future_predictions;
 
-    // Keep last 50 only
-    if (labels.length > 50) {
-        labels.shift();
-        actualData.shift();
-        predictedData.shift();
-        voltageData.shift();
-        frequencyData.shift();
-        anomalyData.shift();
-    }
+        function setCard(id, val) {
+            const el = document.getElementById(id);
+            el.innerText = val.toFixed(2);
+            el.classList.remove('flip');
+            void el.offsetWidth;
+            el.classList.add('flip');
+        }
 
-    // Update forecast chart
-    forecastChart.data.labels = data.future_predictions.map((_, i) => 'T+' + (i + 1));
-    forecastChart.data.datasets[0].data = data.future_predictions;
+        setCard('actualValue',    data.actual);
+        setCard('predictedValue', data.predicted);
+        setCard('voltageValue',   data.voltage);
+        setCard('frequencyValue', data.frequency);
+        setCard('averageLoad',    data.average_load);
+        setCard('peakLoad',       data.peak_load);
+        setCard('minLoad',        data.min_load);
+        setCard('accuracyValue',  data.accuracy);
 
-    // Update cards
-    document.getElementById('actualValue').innerText    = data.actual.toFixed(2);
-    document.getElementById('predictedValue').innerText = data.predicted.toFixed(2);
-    document.getElementById('voltageValue').innerText   = data.voltage.toFixed(2);
-    document.getElementById('frequencyValue').innerText = data.frequency.toFixed(2);
-    document.getElementById('averageLoad').innerText    = data.average_load.toFixed(2);
-    document.getElementById('peakLoad').innerText       = data.peak_load.toFixed(2);
-    document.getElementById('minLoad').innerText        = data.min_load.toFixed(2);
-    document.getElementById('accuracyValue').innerText  = data.accuracy.toFixed(2);
+        if (data.anomaly > 10) {
+            document.getElementById('alertBox').style.display = 'block';
+        } else {
+            document.getElementById('alertBox').style.display = 'none';
+        }
 
-    // Anomaly alert
-    if (data.anomaly > 10) {
-        document.getElementById('alertBox').style.display = 'block';
-    } else {
-        document.getElementById('alertBox').style.display = 'none';
-    }
+        loadChart.update();
+        voltageChart.update();
+        frequencyChart.update();
+        anomalyChart.update();
+        forecastChart.update();
+    });
+}
 
-    // Update all charts
-    loadChart.update();
-    voltageChart.update();
-    frequencyChart.update();
-    anomalyChart.update();
-    forecastChart.update();
-
-});
+/* ══ PWA ══ */
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/service-worker.js')
+    .then(() => console.log('PWA Ready'));
+}
 
 </script>
-
 </body>
 </html>

@@ -1,0 +1,22 @@
+{
+    "name": "SmartGrid AI",
+    "short_name": "SmartGrid",
+    "description": "Smart Grid AI Monitoring System",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#111208",
+    "theme_color": "#F8C463",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "https://img.icons8.com/emoji/192/high-voltage.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "https://img.icons8.com/emoji/512/high-voltage.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
