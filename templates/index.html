@@ -5,7 +5,6 @@
     <title>Smart Grid AI Dashboard</title>
 
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
@@ -34,14 +33,6 @@
             font-family: 'Syne', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            opacity: 0.05;
-            pointer-events: none;
         }
 
         header {
@@ -89,9 +80,7 @@
         }
 
         @keyframes blink {
-            50% {
-                opacity: 0.2;
-            }
+            50% { opacity: 0.2; }
         }
 
         main {
@@ -177,6 +166,13 @@
             color: rgba(255,250,240,0.25);
         }
 
+        #statusBox {
+            font-size: 12px;
+            color: var(--olive);
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
     </style>
 
 </head>
@@ -184,110 +180,89 @@
 <body>
 
 <header>
-
     <div class="logo-group">
-
         <div class="logo-icon">⚡</div>
-
         <div>
             <h1>Smart<span>Grid</span> AI</h1>
         </div>
-
     </div>
-
     <div>
         <span class="live-dot"></span>
         LIVE SYSTEM
     </div>
-
 </header>
 
 <main>
 
-<div id="alertBox">
-    ⚠ ANOMALY DETECTED
-</div>
+    <div id="statusBox">🔄 Connecting to live data...</div>
 
-<div class="cards">
+    <div id="alertBox">⚠ ANOMALY DETECTED</div>
 
-    <div class="card">
-        <div class="card-label">Actual Load</div>
-        <div class="card-value" id="actualValue">0</div>
-        <div class="card-unit">MW</div>
+    <div class="cards">
+        <div class="card">
+            <div class="card-label">Actual Load</div>
+            <div class="card-value" id="actualValue">--</div>
+            <div class="card-unit">MW</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Predicted Load</div>
+            <div class="card-value" id="predictedValue">--</div>
+            <div class="card-unit">MW</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Voltage</div>
+            <div class="card-value" id="voltageValue">--</div>
+            <div class="card-unit">V</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Frequency</div>
+            <div class="card-value" id="frequencyValue">--</div>
+            <div class="card-unit">Hz</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Average Load</div>
+            <div class="card-value" id="averageLoad">--</div>
+            <div class="card-unit">MW</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Peak Load</div>
+            <div class="card-value" id="peakLoad">--</div>
+            <div class="card-unit">MW</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Min Load</div>
+            <div class="card-value" id="minLoad">--</div>
+            <div class="card-unit">MW</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Accuracy</div>
+            <div class="card-value" id="accuracyValue">--</div>
+            <div class="card-unit">%</div>
+        </div>
     </div>
 
-    <div class="card">
-        <div class="card-label">Predicted Load</div>
-        <div class="card-value" id="predictedValue">0</div>
-        <div class="card-unit">MW</div>
+    <div class="charts">
+        <div class="chart-box">
+            <div class="chart-title">Actual vs Predicted Load</div>
+            <canvas id="loadChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <div class="chart-title">Voltage Monitor</div>
+            <canvas id="voltageChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <div class="chart-title">Frequency Monitor</div>
+            <canvas id="frequencyChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <div class="chart-title">Anomaly Score</div>
+            <canvas id="anomalyChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <div class="chart-title">Future Forecast</div>
+            <canvas id="forecastChart"></canvas>
+        </div>
     </div>
-
-    <div class="card">
-        <div class="card-label">Voltage</div>
-        <div class="card-value" id="voltageValue">0</div>
-        <div class="card-unit">V</div>
-    </div>
-
-    <div class="card">
-        <div class="card-label">Frequency</div>
-        <div class="card-value" id="frequencyValue">0</div>
-        <div class="card-unit">Hz</div>
-    </div>
-
-    <div class="card">
-        <div class="card-label">Average Load</div>
-        <div class="card-value" id="averageLoad">0</div>
-        <div class="card-unit">MW</div>
-    </div>
-
-    <div class="card">
-        <div class="card-label">Peak Load</div>
-        <div class="card-value" id="peakLoad">0</div>
-        <div class="card-unit">MW</div>
-    </div>
-
-    <div class="card">
-        <div class="card-label">Min Load</div>
-        <div class="card-value" id="minLoad">0</div>
-        <div class="card-unit">MW</div>
-    </div>
-
-    <div class="card">
-        <div class="card-label">Accuracy</div>
-        <div class="card-value" id="accuracyValue">0</div>
-        <div class="card-unit">%</div>
-    </div>
-
-</div>
-
-<div class="charts">
-
-    <div class="chart-box">
-        <div class="chart-title">Actual vs Predicted Load</div>
-        <canvas id="loadChart"></canvas>
-    </div>
-
-    <div class="chart-box">
-        <div class="chart-title">Voltage Monitor</div>
-        <canvas id="voltageChart"></canvas>
-    </div>
-
-    <div class="chart-box">
-        <div class="chart-title">Frequency Monitor</div>
-        <canvas id="frequencyChart"></canvas>
-    </div>
-
-    <div class="chart-box">
-        <div class="chart-title">Anomaly Score</div>
-        <canvas id="anomalyChart"></canvas>
-    </div>
-
-    <div class="chart-box">
-        <div class="chart-title">Future Forecast</div>
-        <canvas id="forecastChart"></canvas>
-    </div>
-
-</div>
 
 </main>
 
@@ -300,204 +275,152 @@
 Chart.defaults.color = 'rgba(255,250,240,0.4)';
 Chart.defaults.borderColor = 'rgba(255,250,240,0.08)';
 
-const socket = io();
+// Socket connection with fallback
+const socket = io({
+    transports: ['websocket', 'polling'],
+    reconnectionAttempts: 10,
+    reconnectionDelay: 1000
+});
+
+socket.on('connect', function() {
+    document.getElementById('statusBox').innerText = '✅ Connected to Live Data';
+    document.getElementById('statusBox').style.color = '#81912F';
+});
+
+socket.on('disconnect', function() {
+    document.getElementById('statusBox').innerText = '❌ Disconnected — Reconnecting...';
+    document.getElementById('statusBox').style.color = '#E03F4F';
+});
 
 const labels = [];
-
 const actualData = [];
 const predictedData = [];
 const voltageData = [];
 const frequencyData = [];
 const anomalyData = [];
-const forecastData = [];
 
-function makeChart(id, data, color){
-
+function makeChart(id, datasets, extraOptions = {}) {
     return new Chart(document.getElementById(id), {
-
         type: 'line',
-
         data: {
-
             labels: labels,
-
-            datasets: [{
-
-                data: data,
-                borderColor: color,
-                borderWidth: 2,
-                pointRadius: 0,
-                tension: 0.4,
-                fill: false
-            }]
+            datasets: datasets
         },
-
         options: {
-
             responsive: true,
             maintainAspectRatio: false,
-            animation: false
+            animation: false,
+            plugins: { legend: { display: datasets.length > 1 } },
+            ...extraOptions
         }
     });
 }
 
-const loadChart = new Chart(
-document.getElementById('loadChart'),
-{
-type:'line',
+const loadChart = makeChart('loadChart', [
+    {
+        label: 'Actual',
+        data: actualData,
+        borderColor: '#22d3ee',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.4
+    },
+    {
+        label: 'Predicted',
+        data: predictedData,
+        borderColor: '#F8C463',
+        borderWidth: 2,
+        pointRadius: 0,
+        borderDash: [5, 5],
+        tension: 0.4
+    }
+]);
 
-data:{
-labels:labels,
+const voltageChart = makeChart('voltageChart', [{
+    data: voltageData,
+    borderColor: '#81912F',
+    borderWidth: 2,
+    pointRadius: 0,
+    tension: 0.4,
+    fill: false
+}]);
 
-datasets:[
-{
-label:'Actual',
-data:actualData,
-borderColor:'#22d3ee',
-borderWidth:2,
-pointRadius:0,
-tension:0.4
-},
-{
-label:'Predicted',
-data:predictedData,
-borderColor:'#F8C463',
-borderWidth:2,
-pointRadius:0,
-borderDash:[5,5],
-tension:0.4
-}
-]
-},
+const frequencyChart = makeChart('frequencyChart', [{
+    data: frequencyData,
+    borderColor: '#E03F4F',
+    borderWidth: 2,
+    pointRadius: 0,
+    tension: 0.4,
+    fill: false
+}]);
 
-options:{
-responsive:true,
-maintainAspectRatio:false,
-animation:false
-}
-});
+const anomalyChart = makeChart('anomalyChart', [{
+    data: anomalyData,
+    borderColor: '#ff4d4d',
+    borderWidth: 2,
+    pointRadius: 0,
+    tension: 0.4,
+    fill: false
+}]);
 
-const voltageChart =
-makeChart(
-'voltageChart',
-voltageData,
-'#81912F'
-);
+const forecastChart = makeChart('forecastChart', [{
+    data: [],
+    borderColor: '#ff00ff',
+    borderWidth: 2,
+    pointRadius: 3,
+    tension: 0.4,
+    fill: false
+}]);
 
-const frequencyChart =
-makeChart(
-'frequencyChart',
-frequencyData,
-'#E03F4F'
-);
+socket.on('new_data', function(data) {
 
-const anomalyChart =
-makeChart(
-'anomalyChart',
-anomalyData,
-'#ff4d4d'
-);
+    // Update status
+    document.getElementById('statusBox').innerText = '✅ Live Data Receiving...';
 
-const forecastChart =
-makeChart(
-'forecastChart',
-forecastData,
-'#ff00ff'
-);
-
-socket.on('new_data', function(data){
-
+    // Push labels and data
     labels.push('');
-
     actualData.push(data.actual);
-
     predictedData.push(data.predicted);
-
     voltageData.push(data.voltage);
-
     frequencyData.push(data.frequency);
-
     anomalyData.push(data.anomaly);
 
-    forecastChart.data.datasets[0].data =
-        data.future_predictions;
-
-    document.getElementById(
-        'actualValue'
-    ).innerText =
-        data.actual.toFixed(2);
-
-    document.getElementById(
-        'predictedValue'
-    ).innerText =
-        data.predicted.toFixed(2);
-
-    document.getElementById(
-        'voltageValue'
-    ).innerText =
-        data.voltage.toFixed(2);
-
-    document.getElementById(
-        'frequencyValue'
-    ).innerText =
-        data.frequency.toFixed(2);
-
-    document.getElementById(
-        'averageLoad'
-    ).innerText =
-        data.average_load.toFixed(2);
-
-    document.getElementById(
-        'peakLoad'
-    ).innerText =
-        data.peak_load.toFixed(2);
-
-    document.getElementById(
-        'minLoad'
-    ).innerText =
-        data.min_load.toFixed(2);
-
-    document.getElementById(
-        'accuracyValue'
-    ).innerText =
-        data.accuracy.toFixed(2);
-
-    if(labels.length > 50){
-
+    // Keep last 50 only
+    if (labels.length > 50) {
         labels.shift();
-
         actualData.shift();
-
         predictedData.shift();
-
         voltageData.shift();
-
         frequencyData.shift();
-
         anomalyData.shift();
     }
 
-    if(data.anomaly > 10){
+    // Update forecast chart
+    forecastChart.data.labels = data.future_predictions.map((_, i) => 'T+' + (i + 1));
+    forecastChart.data.datasets[0].data = data.future_predictions;
 
-        document.getElementById(
-            'alertBox'
-        ).style.display = 'block';
+    // Update cards
+    document.getElementById('actualValue').innerText    = data.actual.toFixed(2);
+    document.getElementById('predictedValue').innerText = data.predicted.toFixed(2);
+    document.getElementById('voltageValue').innerText   = data.voltage.toFixed(2);
+    document.getElementById('frequencyValue').innerText = data.frequency.toFixed(2);
+    document.getElementById('averageLoad').innerText    = data.average_load.toFixed(2);
+    document.getElementById('peakLoad').innerText       = data.peak_load.toFixed(2);
+    document.getElementById('minLoad').innerText        = data.min_load.toFixed(2);
+    document.getElementById('accuracyValue').innerText  = data.accuracy.toFixed(2);
 
-    }else{
-
-        document.getElementById(
-            'alertBox'
-        ).style.display = 'none';
+    // Anomaly alert
+    if (data.anomaly > 10) {
+        document.getElementById('alertBox').style.display = 'block';
+    } else {
+        document.getElementById('alertBox').style.display = 'none';
     }
 
+    // Update all charts
     loadChart.update();
-
     voltageChart.update();
-
     frequencyChart.update();
-
     anomalyChart.update();
-
     forecastChart.update();
 
 });
@@ -505,5 +428,4 @@ socket.on('new_data', function(data){
 </script>
 
 </body>
-
 </html>
