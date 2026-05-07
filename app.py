@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import threading
 import time
+import os
 
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import load_model
@@ -215,20 +216,9 @@ def send_live_data():
                 )
             )
 
-            print(
-                "ACTUAL:",
-                actual_value
-            )
-
-            print(
-                "PREDICTED:",
-                predicted_value
-            )
-
-            print(
-                "ANOMALY:",
-                anomaly_score
-            )
+            print("ACTUAL:", actual_value)
+            print("PREDICTED:", predicted_value)
+            print("ANOMALY:", anomaly_score)
 
             # SEND TO DASHBOARD
             socketio.emit(
@@ -277,10 +267,7 @@ def send_live_data():
 
         except Exception as e:
 
-            print(
-                "ERROR:",
-                e
-            )
+            print("ERROR:", e)
 
 # MAIN
 if __name__ == '__main__':
@@ -299,7 +286,7 @@ if __name__ == '__main__':
 
         host='0.0.0.0',
 
-        port=5000,
+        port=int(os.environ.get("PORT", 5000)),
 
         debug=True,
 
