@@ -1,3 +1,13 @@
 venv/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.env
+.DS_Store
+
+# Ignore old h5 model
+smart_grid_model.h5
+
+# Ignore resave script
+resave_model.py

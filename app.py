@@ -11,7 +11,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Load trained model
 model = tf.keras.models.load_model(
-    "smart_grid_model.h5",
+    "smart_grid_model.keras",
     compile=False
 )
 
