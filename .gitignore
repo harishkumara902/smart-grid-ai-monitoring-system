@@ -5,9 +5,6 @@ __pycache__/
 *.pyd
 .env
 .DS_Store
-
-# Ignore old h5 model
 smart_grid_model.h5
-
-# Ignore resave script
+smart_grid_model.keras
 resave_model.py
